@@ -1,13 +1,13 @@
-from fastapi import FastAPI, HTTPException, Depends, Query, status, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, Query, status, UploadFile, File, Request
 from fastapi.security import  OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-
+from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import csv
 from logger import logger
 from . import auth, schemas, database
-# from .schemas import UserCreate, User, Token
-# from backend.database import conn,cursor
+from fastapi.responses import RedirectResponse
+
 # # Initialize FastAPI
 app = FastAPI()
 
@@ -225,6 +225,34 @@ def analytics_by_date(from_date: str = Query(..., alias="from"),
     except Exception as e:
         logger.error(f"Error in date range analytics: {str(e)}", exc_info=True)
         raise
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    protected_routes = ['/profile.html', '/admin.html', '/landing.html']
+    if any(request.url.path.endswith(route) for route in protected_routes):
+        if not request.headers.get('authorization'):
+            return RedirectResponse(url='/frontend/index.html?error=unauthorized')
+        
+        try:
+            token = request.headers['authorization'].split(' ')[1]
+            # Add your JWT verification logic here
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        except JWTError:
+            return RedirectResponse(url='/frontend/index.html?error=invalid_token')
+    
+    return await call_next(request)
+
+@app.post("/api/verify-token")
+async def verify_token(request: Request):
+    token = request.headers.get('authorization', '').split(' ')[1]
+    try:
+        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"valid": True}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+
 
 if __name__ == "__main__":
     import uvicorn
