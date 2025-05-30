@@ -46,3 +46,4 @@ A modern web application for visualizing and analyzing sales data, built with Fa
 ```bash
 git clone https://github.com/agrawal-raj/sales-analytics-website.git
 cd sales-analytics-website
+pip install -r requirements.txt
