@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      <link rel="stylesheet" href="profile.css" />
+
+</head>
+<body>
+
+  <div class="container">
+    <h1>User Profile</h1>
+    <p class="subtitle">Manage your personal information below</p>
+    <div class="profile-data" id="profile-data"></div>
+    <div class="profile-pic" id="profile-pic">U</div>
+
+    <div class="info-box">
+      <div class="info-item">
+        <span class="info-label">Username:</span>
+        <span id="username">User123</span>
+      </div>
+    
+      <div class="info-item">
+        <span class="info-label">Role:</span>
+        <span id="role">Standard User</span>
+      </div>
+    </div>
+
+    <button class="btn" onclick="goBack()">
+      <i class='bx bx-arrow-back'></i> Back to Dashboard
+    </button>
+  </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Try to get data from localStorage first
+      const profileData = JSON.parse(localStorage.getItem('profileData'));
+      
+      if (profileData) {
+        // If we have profile data, use it
+        document.getElementById('username').textContent = profileData.username || 'User';
+        document.getElementById('role').textContent = profileData.role || 'Standard User';
+        document.getElementById('profile-pic').textContent = (profileData.username || 'U').charAt(0).toUpperCase();
+      } else {
+        // If no profile data, check for individual items
+        const username = localStorage.getItem('username') || 'User';
+        const role = localStorage.getItem('role') || 'Standard User';
+        
+        document.getElementById('username').textContent = username;
+        document.getElementById('role').textContent = role;
+        document.getElementById('profile-pic').textContent = username.charAt(0).toUpperCase();
+      }
+    });
+
+    function goBack() {
+      window.location.href = 'landing.html';
+    }
+  </script>
+</body>
+</html>

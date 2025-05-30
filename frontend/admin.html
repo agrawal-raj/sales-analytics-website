@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard with Sidebar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="admin.css" />
+
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div>
+        <h2>Admin</h2>
+        <nav>
+          <a href="#" data-view="summary" class="active"><i class='bx bx-line-chart'></i> Analytics Summary</a>
+          <a href="#" data-view="upload"><i class='bx bx-upload'></i> Upload Sales Data</a>
+          <a href="#" data-view="top-customers"><i class='bx bx-user-circle'></i> Top 3 Customers</a>
+          <a href="#" data-view="by-date"><i class='bx bx-calendar'></i> Analytics By Date</a>
+        </nav>
+      </div>
+      <button class="logout-btn" onclick="logout()">
+        <i class='bx bx-log-out'></i> Logout
+      </button>
+    </aside>
+
+    <main class="main-content" id="main-content">
+      <h1>Welcome to the Admin Dashboard</h1>
+      <p>Select an option from the sidebar to manage your application.</p>
+    </main>
+  </div>
+
+  <script>
+    function logout() {
+      // Remove the token from localStorage
+      localStorage.removeItem('access_token');
+      
+      // Redirect to login page or home page
+      window.location.href = 'index.html'; // Change this to your login page URL
+    }
+  </script>
+  <script src="admin.js"></script>
+</body>
+</html>
