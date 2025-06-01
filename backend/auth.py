@@ -5,8 +5,9 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional
 from .database import cursor
+import os
 
-SECRET_KEY = "your-secret-key-here"  # Change this in production!
+SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(24).hex())  # Change this in production!
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

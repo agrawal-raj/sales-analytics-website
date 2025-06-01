@@ -14,12 +14,14 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", 'http://192.168.1.40:5500'],  # Your frontend origins
+    allow_origins=["http://192.168.1.40:5500"],  # Your frontend origins
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods including OPTIONS
     allow_headers=["*"],  # Allows all headers including Authorization
     expose_headers=["*"]
 )
+
+# 'http://192.168.1.40:5500'
 
 # Routes
 @app.post("/register", response_model=schemas.User)
@@ -152,18 +154,27 @@ async def get_summary(admin_user: dict = Depends(auth.get_current_admin_user)):
         
         logger.debug(f"Summary analytics query result: {result}")
         
-        response = {
-            "totalSales": round(result[0], 2),
-            "totalTransactions": result[1],
-            "averageOrderValue": round(result[2], 2)
-        }
+        # Handle case where there are no transactions
+        if result[0] is None:  # SUM(amount) will be NULL if no rows exist
+            response = {
+                "totalSales": 0.00,
+                "totalTransactions": 0,
+                "averageOrderValue": 0.00,
+                "message": "No transaction data available"
+            }
+        else:
+            response = {
+                "totalSales": round(result[0], 2),
+                "totalTransactions": result[1],
+                "averageOrderValue": round(result[2], 2)
+            }
         
         logger.info(f"Successfully returned summary analytics: {response}")
         return response
         
     except Exception as e:
         logger.error(f"Error in summary analytics: {str(e)}", exc_info=True)
-        raise
+        raise HTTPException(status_code=500, detail="Error fetching summary analytics")
 
 @app.get("/analytics/top-customers")
 def get_top_customers(admin_user: dict = Depends(auth.get_current_admin_user)):
@@ -230,13 +241,12 @@ def analytics_by_date(from_date: str = Query(..., alias="from"),
 async def auth_middleware(request: Request, call_next):
     protected_routes = ['/profile.html', '/admin.html', '/landing.html']
     if any(request.url.path.endswith(route) for route in protected_routes):
-        if not request.headers.get('authorization'):
+        token = request.cookies.get("access_token") or request.headers.get("authorization", "").replace("Bearer", "")
+        if not token:
             return RedirectResponse(url='/frontend/index.html?error=unauthorized')
         
         try:
-            token = request.headers['authorization'].split(' ')[1]
-            # Add your JWT verification logic here
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
         except JWTError:
             return RedirectResponse(url='/frontend/index.html?error=invalid_token')
     
@@ -244,11 +254,15 @@ async def auth_middleware(request: Request, call_next):
 
 @app.post("/api/verify-token")
 async def verify_token(request: Request):
-    token = request.headers.get('authorization', '').split(' ')[1]
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    
     try:
-        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        token = auth_header.split(' ')[1]
+        jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
         return {"valid": True}
-    except JWTError:
+    except (JWTError, IndexError) as e:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 

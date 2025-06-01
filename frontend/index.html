@@ -114,5 +114,20 @@
     </div>
 
     <script src="app.js"></script>
+    <!-- <script>
+      // Check for error messages in URL
+const urlParams = new URLSearchParams(window.location.search);
+const error = urlParams.get('error');
+
+if (error) {
+    const errorMap = {
+        'unauthorized': 'Please login to access that page',
+        'invalid_token': 'Session expired, please login again',
+        'timeout': 'Session timed out'
+    };
+    
+    showErrorMessage(errorMap[error] || 'Authentication required');
+}
+    </script> -->
   </body>
 </html>

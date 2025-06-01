@@ -164,41 +164,58 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!res.ok) throw new Error("Failed to fetch summary");
           const data = await res.json();
 
-          const ctx = document
-            .getElementById("summaryPieChart")
-            .getContext("2d");
-          new Chart(ctx, {
-            type: "pie",
-            data: {
-              labels: ["Total Sales", "Total Transactions", "Avg Order Value"],
-              datasets: [
-                {
-                  data: [
-                    data.totalSales,
-                    data.totalTransactions,
-                    data.averageOrderValue,
-                  ],
-                  backgroundColor: ["#4CAF50", "#2196F3", "#FF9800"],
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: "right",
-                },
-                tooltip: {
-                  callbacks: {
-                    label: function (context) {
-                      return `${context.label}: ${context.raw}`;
-                    },
-                  },
-                },
-              },
-            },
-          });
+         const ctx = document.getElementById("summaryPieChart").getContext("2d");
+new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: ["Metrics"],
+    datasets: [
+      {
+        label: "Total Sales ($)",
+        data: [data.totalSales],
+        backgroundColor: "#4CAF50",
+        yAxisID: "y",
+      },
+      {
+        label: "Total Transactions",
+        data: [data.totalTransactions],
+        backgroundColor: "#2196F3",
+        yAxisID: "y1",
+      },
+      {
+        label: "Avg Order Value ($)",
+        data: [data.averageOrderValue],
+        backgroundColor: "#FF9800",
+        yAxisID: "y2",
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        type: "linear",
+        display: true,
+        position: "left",
+        title: { display: true, text: "Total Sales ($)" },
+      },
+      y1: {
+        type: "linear",
+        display: true,
+        position: "right",
+        title: { display: true, text: "Total Transactions" },
+        grid: { drawOnChartArea: false },
+      },
+      y2: {
+        type: "linear",
+        display: true,
+        position: "right",
+        title: { display: true, text: "Avg Order Value ($)" },
+        grid: { drawOnChartArea: false },
+      },
+    },
+  },
+});
         } catch (err) {
           mainContent.innerHTML = `<p>Error loading summary chart: ${err.message}</p>`;
         }

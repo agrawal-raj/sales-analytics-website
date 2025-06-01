@@ -60,8 +60,9 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         
         // You can redirect or store the token here
         const accessToken = data.access_token; 
+        localStorage.setItem("role", data.role)
         localStorage.setItem("access_token",accessToken)
-        
+        //window.location.href = '/frontend/profile.html'; 
         // Example: Redirect after successful login
         if(data.role==='admin') {
             window.location.href = 'admin.html';
